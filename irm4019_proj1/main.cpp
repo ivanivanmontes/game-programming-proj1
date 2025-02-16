@@ -1,3 +1,12 @@
+/**
+* Author: Ivan Reynoso Montes
+* Assignment: Simple 2D Scene
+* Date due: 2025-02-15, 11:59pm
+* I pledge that I have completed this assignment without
+* collaborating with anyone else, in conformance with the
+* NYU School of Engineering Policies and Procedures on
+* Academic Misconduct.
+**/
 #define GL_SILENCE_DEPRECATION
 #define STB_IMAGE_IMPLEMENTATION
 #define LOG(argument) std::cout << argument << '\n'
@@ -19,8 +28,8 @@ constexpr int WINDOW_WIDTH  = 640 * 2,
               WINDOW_HEIGHT = 480 * 2;
 
 constexpr float BG_RED     = 0.9765625f,
-                BG_GREEN   = 0.97265625f,
-                BG_BLUE    = 0.9609375f,
+                BG_GREEN   = 0.6f,
+                BG_BLUE    = 1.0f,
                 BG_OPACITY = 1.0f;
 
 constexpr int VIEWPORT_X      = 0,
@@ -34,18 +43,12 @@ constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 constexpr float DEGREES_PER_SECOND = 90.0;
 
-constexpr GLint NUMBER_OF_TEXTURES = 1, // to be generated, that is
-                LEVEL_OF_DETAIL    = 0, // mipmap reduction image level
-                TEXTURE_BORDER     = 0; // this value MUST be zero
+constexpr GLint NUMBER_OF_TEXTURES = 1,
+                LEVEL_OF_DETAIL    = 0,
+                TEXTURE_BORDER     = 0;
 
-constexpr char GREEN_GUY_SPRITE[]    = "rui.png",
+constexpr char GREEN_GUY_SPRITE[] = "rui.png",
                PINK_GIRL_SPRITE[] = "totsuko.png";
-
-constexpr glm::vec3 INIT_SCALE       = glm::vec3(5.0f, 5.98f, 0.0f),
-                    INIT_POS_KIMI    = glm::vec3(2.0f, 0.0f, 0.0f),
-                    INIT_POS_TOTSUKO = glm::vec3(-2.0f, 0.0f, 0.0f);
-
-constexpr float ROT_INCREMENT = 1.0f;
 
 SDL_Window* g_display_window;
 AppStatus g_app_status = RUNNING;
@@ -158,7 +161,6 @@ void process_input()
 
 void update()
 {
-
     float ticks = (float) SDL_GetTicks() / MILLISECONDS_IN_SECOND;
     float delta_time = ticks - g_previous_ticks;
     g_previous_ticks = ticks;
@@ -169,8 +171,7 @@ void update()
 
     g_model_matrix1 = glm::mat4(1.0f);
     g_model_matrix2 = glm::mat4(1.0f);
-
-
+    
     g_model_matrix1 = glm::translate(g_model_matrix1, glm::vec3(g_triangle_x, g_triangle_y, 0.0f));
     g_model_matrix1 = glm::rotate(g_model_matrix1, glm::radians(g_triangle_rotate), glm::vec3(0.0f, 0.0f, 1.0f));
     
@@ -184,55 +185,21 @@ void draw_object(glm::mat4 &object_g_model_matrix, GLuint &object_texture_id)
     glDrawArrays(GL_TRIANGLES, 0, 6); // we are now drawing 2 triangles, so use 6, not 3
 }
 
-//void render() {
-//    glClear(GL_COLOR_BUFFER_BIT);
-//
-//    g_shader_program.set_model_matrix(g_model_matrix1);
-////    g_shader_program.set_model_matrix(g_model_matrix2);
-//
-//    float vertices[] = {
-//            -0.5f, -0.5f,   0.5f, -0.5f,   0.0f,  0.5f
-//        };
-//
-//    glVertexAttribPointer(g_shader_program.get_position_attribute(),
-//                          2, GL_FLOAT, false, 0, vertices);
-//    glEnableVertexAttribArray(g_shader_program.get_position_attribute());
-//    glDrawArrays(GL_TRIANGLES, 0, 3);
-//    glDisableVertexAttribArray(g_shader_program.get_position_attribute());
-//    
-//    g_shader_program.set_model_matrix(g_model_matrix2);
-//    glVertexAttribPointer(g_shader_program.get_position_attribute(),
-//                          2, GL_FLOAT, false, 0, vertices);
-//    glEnableVertexAttribArray(g_shader_program.get_position_attribute());
-//    glDrawArrays(GL_TRIANGLES, 0, 3);
-//    glDisableVertexAttribArray(g_shader_program.get_position_attribute());
-//    
-//    g_shader_program.set_model_matrix(g_model_matrix3);
-//    glVertexAttribPointer(g_shader_program.get_position_attribute(),
-//                          2, GL_FLOAT, false, 0, vertices);
-//    glEnableVertexAttribArray(g_shader_program.get_position_attribute());
-//    glDrawArrays(GL_TRIANGLES, 0, 3);
-//    glDisableVertexAttribArray(g_shader_program.get_position_attribute());
-//
-//    SDL_GL_SwapWindow(g_display_window);
-//}
 
 void render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Vertices
     float vertices[] =
     {
-        -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,  // triangle 1
-        -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f   // triangle 2
+        -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
+        -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f
     };
 
-    // Textures
     float texture_coordinates[] =
     {
-        0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,     // triangle 1
-        0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,     // triangle 2
+        0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
     };
 
     glVertexAttribPointer(g_shader_program.get_position_attribute(), 2, GL_FLOAT, false,
@@ -243,19 +210,14 @@ void render()
                           false, 0, texture_coordinates);
     glEnableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
 
-    // Bind texture
     draw_object(g_model_matrix1, g_green_guy_texture_id);
     draw_object(g_model_matrix2, g_pink_girl_texture_id);
 
-    // We disable two attribute arrays now
     glDisableVertexAttribArray(g_shader_program.get_position_attribute());
     glDisableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
 
     SDL_GL_SwapWindow(g_display_window);
 }
-
-
-
 
 void shutdown() { SDL_Quit(); }
 
