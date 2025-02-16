@@ -70,7 +70,7 @@
 		DBDF1B462323DE3F007CECB1 = {
 			isa = PBXGroup;
 			children = (
-				DBDF1B512323DE3F007CECB1 /* newVersion */,
+				DBDF1B512323DE3F007CECB1 /* irm4019_proj1 */,
 				DBDF1B502323DE3F007CECB1 /* Products */,
 				DBDF1B5F2323DE92007CECB1 /* Frameworks */,
 			);
@@ -84,7 +84,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DBDF1B512323DE3F007CECB1 /* newVersion */ = {
+		DBDF1B512323DE3F007CECB1 /* irm4019_proj1 */ = {
 			isa = PBXGroup;
 			children = (
 				DBDF1B5B2323DE8D007CECB1 /* glm */,
@@ -96,7 +96,7 @@
 				6D8115A42D5D162100CA8089 /* rui.png */,
 				DBDF1B522323DE3F007CECB1 /* main.cpp */,
 			);
-			path = newVersion;
+			path = irm4019_proj1;
 			sourceTree = "<group>";
 		};
 		DBDF1B5F2323DE92007CECB1 /* Frameworks */ = {

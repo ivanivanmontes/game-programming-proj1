@@ -4,7 +4,6 @@
 #define GL_GLEXT_PROTOTYPES 1
 
 #ifdef _WINDOWS
-#include <GL/glew.h>
 #endif
 
 #include <SDL.h>
@@ -39,9 +38,8 @@ constexpr GLint NUMBER_OF_TEXTURES = 1, // to be generated, that is
                 LEVEL_OF_DETAIL    = 0, // mipmap reduction image level
                 TEXTURE_BORDER     = 0; // this value MUST be zero
 
-// source: https://kiminoiro.jp/
-constexpr char KIMI_SPRITE_FILEPATH[]    = "rui.png",
-               TOTSUKO_SPRITE_FILEPATH[] = "totsuko.png";
+constexpr char GREEN_GUY_SPRITE[]    = "rui.png",
+               PINK_GIRL_SPRITE[] = "totsuko.png";
 
 constexpr glm::vec3 INIT_SCALE       = glm::vec3(5.0f, 5.98f, 0.0f),
                     INIT_POS_KIMI    = glm::vec3(2.0f, 0.0f, 0.0f),
@@ -56,20 +54,16 @@ ShaderProgram g_shader_program = ShaderProgram();
 glm::mat4 g_view_matrix,
           g_model_matrix1,
           g_model_matrix2,
-          g_model_matrix3,
           g_projection_matrix;
 
 float g_previous_ticks = 0.0f;
 float g_triangle_x = 0.0f;
+float g_triangle_y = 0.0f;
 float g_triangle_rotate = 0.0f;
-float move_x = 0.0f;
-float move_y = 0.0f;
 
-glm::vec3 g_rotation_kimi    = glm::vec3(0.0f, 0.0f, 0.0f),
-          g_rotation_totsuko = glm::vec3(0.0f, 0.0f, 0.0f);
 
-GLuint g_kimi_texture_id,
-       g_totsuko_texture_id;
+GLuint g_green_guy_texture_id,
+       g_pink_girl_texture_id;
 
 
 GLuint load_texture(const char* filepath)
@@ -106,7 +100,7 @@ void initialise()
     // Initialise video
     SDL_Init(SDL_INIT_VIDEO);
 
-    g_display_window = SDL_CreateWindow("Hello, Textures!",
+    g_display_window = SDL_CreateWindow("Project 1",
                                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                       WINDOW_WIDTH, WINDOW_HEIGHT,
                                       SDL_WINDOW_OPENGL);
@@ -131,7 +125,6 @@ void initialise()
 
     g_model_matrix1       = glm::mat4(1.0f);
     g_model_matrix2     = glm::mat4(1.0f);
-    g_model_matrix3     = glm::mat4(1.0f);
     g_view_matrix       = glm::mat4(1.0f);
     g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
 
@@ -142,8 +135,8 @@ void initialise()
 
     glClearColor(BG_RED, BG_GREEN, BG_BLUE, BG_OPACITY);
 
-    g_kimi_texture_id    = load_texture(KIMI_SPRITE_FILEPATH);
-    g_totsuko_texture_id = load_texture(TOTSUKO_SPRITE_FILEPATH);
+    g_green_guy_texture_id = load_texture(GREEN_GUY_SPRITE);
+    g_pink_girl_texture_id = load_texture(PINK_GIRL_SPRITE);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -165,34 +158,23 @@ void process_input()
 
 void update()
 {
-    /** NEW STUFF BELOW */
-    /* Delta Time Calculations */
-    float ticks = (float) SDL_GetTicks() / MILLISECONDS_IN_SECOND; // current # of ticks
-    float delta_time = ticks - g_previous_ticks; // tick difference from the last frame
+
+    float ticks = (float) SDL_GetTicks() / MILLISECONDS_IN_SECOND;
+    float delta_time = ticks - g_previous_ticks;
     g_previous_ticks = ticks;
 
-    /* Update Your Logic*/
-    g_triangle_x += 1.0f * delta_time;
-    g_triangle_rotate += DEGREES_PER_SECOND * delta_time; // 90-degrees per second
-    
-    move_x += -0.5f * delta_time;  // Moves left (-x)
-    move_y += 0.5f * delta_time;   // Moves up (+y)
+    g_triangle_x += -0.5f * delta_time;
+    g_triangle_y += 0.5f * delta_time;
+    g_triangle_rotate += DEGREES_PER_SECOND * delta_time;
 
-    /* Reset the Model Matrix */
     g_model_matrix1 = glm::mat4(1.0f);
     g_model_matrix2 = glm::mat4(1.0f);
-    g_model_matrix3 = glm::mat4(1.0f);
 
 
-    /* Translate -> Rotate */
-    g_model_matrix1 = glm::translate(g_model_matrix1, glm::vec3(move_x, move_y, 0.0f));
+    g_model_matrix1 = glm::translate(g_model_matrix1, glm::vec3(g_triangle_x, g_triangle_y, 0.0f));
     g_model_matrix1 = glm::rotate(g_model_matrix1, glm::radians(g_triangle_rotate), glm::vec3(0.0f, 0.0f, 1.0f));
     
-    /* Second Triangle: moves in relation to g_model_matrix1 */
     g_model_matrix2 = glm::translate(g_model_matrix1, glm::vec3(-2.0f, 0.0f, 0.0f));
-    
-    /* Third Triangle: Static at (0,0) this one is gonna be static */
-    g_model_matrix3 = glm::translate(g_model_matrix3, glm::vec3(move_x, move_y, 0.0f));
 }
 
 void draw_object(glm::mat4 &object_g_model_matrix, GLuint &object_texture_id)
@@ -262,8 +244,8 @@ void render()
     glEnableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
 
     // Bind texture
-    draw_object(g_model_matrix1, g_kimi_texture_id);
-    draw_object(g_model_matrix2, g_totsuko_texture_id);
+    draw_object(g_model_matrix1, g_green_guy_texture_id);
+    draw_object(g_model_matrix2, g_pink_girl_texture_id);
 
     // We disable two attribute arrays now
     glDisableVertexAttribArray(g_shader_program.get_position_attribute());
