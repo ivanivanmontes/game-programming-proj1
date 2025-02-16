@@ -182,7 +182,7 @@ void draw_object(glm::mat4 &object_g_model_matrix, GLuint &object_texture_id)
 {
     g_shader_program.set_model_matrix(object_g_model_matrix);
     glBindTexture(GL_TEXTURE_2D, object_texture_id);
-    glDrawArrays(GL_TRIANGLES, 0, 6); // we are now drawing 2 triangles, so use 6, not 3
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 
